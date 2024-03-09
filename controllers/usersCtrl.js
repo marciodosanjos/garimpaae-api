@@ -24,7 +24,7 @@ export const registerUserCtrl = asyncHandler(
         //create user
         const user = await User.create({
             fullname, email, password: hashedPassword
-        })
+        }) 
         
         res.status(201).json({
             status: 'success',
