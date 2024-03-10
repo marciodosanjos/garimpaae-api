@@ -1,6 +1,10 @@
 import User from '../model/User.js';
 import asyncHandler from 'express-async-handler';
 import bcrypt from 'bcryptjs';
+import generateToken from '../utils/generateToken.js';
+import { getTokenFromHeader } from '../utils/getTokenFromHeader.js';
+import { verifyToken } from '../utils/verifyToken.js';
+
 
 //@desc Register User
 //@route POST /api/users/register
@@ -47,7 +51,8 @@ export const loginUserCrtl = asyncHandler(
             res.json({
                 status: 'success',
                 msg: 'Login successfull',
-                userFound
+                userFound,
+                token: generateToken(userFound?._id)
             })
         } else {
              throw new Error('Invalid login')
@@ -55,4 +60,21 @@ export const loginUserCrtl = asyncHandler(
     
     }
     
+)
+
+// @desc Get user profile
+// @route GET /api/vi/users/profile
+// @access Private
+
+export const getUserProfileCtrl = asyncHandler(
+    async(req, res) => {
+        const token = getTokenFromHeader(req);
+
+        //verify token
+        const verified = verifyToken(token);
+        console.log(verified);
+        res.json({
+            msg:'Welcome to my profile page'
+        })
+    }
 )
