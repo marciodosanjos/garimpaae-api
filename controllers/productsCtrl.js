@@ -4,7 +4,6 @@ import asyncHandler from 'express-async-handler';
 //@desc Register Product
 //@route POST /api/products
 //@access Private/Admin
-
 export const createProduct = asyncHandler(
     
     async(req, res) => {
@@ -39,11 +38,10 @@ export const createProduct = asyncHandler(
 //@desc Fetch all products
 //@route GET /api/products
 //@access Public
-
 export const getProductsCtrl = asyncHandler(
 
     async(req, res) => {
-        console.log(req.query);
+        console.log(req.body);
         //query
         let productQuery = Product.find();
 
@@ -69,7 +67,8 @@ export const getProductsCtrl = asyncHandler(
         }
 
          //search by color
-         if (req.query.colors) {
+         if (req.query.color) {
+            console.log(req.query.size);
             productQuery = productQuery.find({
                 colors: {$regex: req.query.color, $options:'i'}
             })
@@ -77,17 +76,74 @@ export const getProductsCtrl = asyncHandler(
          //search by size
          if (req.query.size) {
             productQuery = productQuery.find({
-                size: {$regex: req.query.size, $options:'i'}
+                sizes: {$regex: req.query.size, $options:'i'}
             })
+        }
+
+         //search by price range
+         if (req.query.price) {
+
+            let priceRange = req.query.price.split('-');
+
+            //how to: in this case we need to use some mongodb operators inside the find query
+
+            //gte: greater than or equal to
+            //lte: less than or equal to
+
+            productQuery.find({
+                price:{$gte:priceRange[0], $lte:priceRange[1]}
+            })
+
+        }
+
+        //pagination
+
+        //page
+        const page = parseInt(req.query.page) ? parseInt(req.query.page) : 1;
+        
+        //limit
+        const limit = parseInt(req.query.limit) ? parseInt(req.query.limit) : 10;
+
+        //startIdx
+        const startIndex = (page-1)*limit;
+
+        //endIdx
+        const endIndex = page * limit;
+
+        //total
+        const total = await Product.countDocuments();
+
+        productQuery = productQuery.skip(startIndex).limit(limit);
+
+        //pagination results
+        const pagination = {};
+        if (endIndex < total) {
+            pagination.next = {
+                page: page + 1,
+                limit
+            }
+        }
+
+        if (startIndex > 0) {
+            pagination.prev = {
+                page: page -1,
+                limit
+            }
+            
         }
 
         //await the query
         const products = await productQuery;
+
+        
        
         res.json(
             {
             status: 'success',
-            data: products
+            total,
+            results: products.length,
+            pagination,
+            data: products,
             }
         )
 
@@ -95,5 +151,35 @@ export const getProductsCtrl = asyncHandler(
     }
 
 );
+
+//@desc Fetch a single product
+//@route GET /api/products/:id
+//@access Public
+export const getProductCtrl = asyncHandler(
+
+        async(req, res) => {
+
+            const productId = req.params.id
+
+            const product = await Product.findById(productId);
+
+            if (!product) {
+                throw new Error ('No product found');
+            }
+
+            res.json({
+                status: 'Success',
+                data: product
+            })
+
+        }
+
+);
+
+
+
+
+
+
 
 
