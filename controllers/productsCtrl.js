@@ -1,6 +1,5 @@
 import Product from "../model/Product.js";
 import asyncHandler from 'express-async-handler';
-import User from "../model/User.js";
 
 //@desc Register Product
 //@route POST /api/products
@@ -34,6 +33,67 @@ export const createProduct = asyncHandler(
         
 
     }
-
     
 );
+
+//@desc Fetch all products
+//@route GET /api/products
+//@access Public
+
+export const getProductsCtrl = asyncHandler(
+
+    async(req, res) => {
+        console.log(req.query);
+        //query
+        let productQuery = Product.find();
+
+        //search by name
+        if (req.query.name) {
+            productQuery = productQuery.find({
+                name: {$regex: req.query.name, $options:'i'}
+            })
+        }
+
+         //search by brand
+         if (req.query.brand) {
+            productQuery = productQuery.find({
+                brand: {$regex: req.query.brand, $options:'i'}
+            })
+        }
+
+         //search by category
+         if (req.query.category) {
+            productQuery = productQuery.find({
+                category: {$regex: req.query.category, $options:'i'}
+            })
+        }
+
+         //search by color
+         if (req.query.colors) {
+            productQuery = productQuery.find({
+                colors: {$regex: req.query.color, $options:'i'}
+            })
+        }
+         //search by size
+         if (req.query.size) {
+            productQuery = productQuery.find({
+                size: {$regex: req.query.size, $options:'i'}
+            })
+        }
+
+        //await the query
+        const products = await productQuery;
+       
+        res.json(
+            {
+            status: 'success',
+            data: products
+            }
+        )
+
+
+    }
+
+);
+
+
