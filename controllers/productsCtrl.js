@@ -1,3 +1,4 @@
+import Category from "../model/Categories.js";
 import Product from "../model/Product.js";
 import asyncHandler from 'express-async-handler';
 
@@ -16,10 +17,21 @@ export const createProduct = asyncHandler(
             throw new Error ('Product already exists');
         }
 
+        //find the category
+        const categoryFound = await Category.findOne({name: category});
+
+        if (!category) {
+            throw new Error ('Category not found. Create one or check the existing');
+        }
+
         //create product
         const product = await Product.create({name, description, brand, category, sizes, colors, user: req.userAuthId, images, reviews, price, totalQty, totalSold});
 
         //push the product into category
+        categoryFound.products.push(product.id);
+
+        //resave
+        await categoryFound.save();
         
         //send the response
 
@@ -176,7 +188,6 @@ export const getProductCtrl = asyncHandler(
 
 );
 
-
 //@desc Update a single product
 //@route POST /api/products/:id
 //@access Admin
@@ -200,7 +211,6 @@ export const updateProductCtrl = asyncHandler(
 //@desc Delete a single product
 //@route POST /api/products/:id
 //@access Admin
-
 export const deleteProductCtrl = asyncHandler(
 
     async(req, res) => {
