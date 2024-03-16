@@ -5,7 +5,7 @@ import { isLoggedIn } from '../middlewares/isLoggedIn.js';
 
 const userRoutes = express.Router();
 
-//users
+////routes for users
 userRoutes.post('/register',registerUserCtrl);
 userRoutes.post('/login', loginUserCrtl);
 userRoutes.get('/profile', isLoggedIn, getUserProfileCtrl)

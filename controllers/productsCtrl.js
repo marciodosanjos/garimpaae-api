@@ -7,13 +7,13 @@ import asyncHandler from 'express-async-handler';
 export const createProduct = asyncHandler(
     
     async(req, res) => {
-        const {name, description, brand, category, sizes, colors, fullname, images, reviews, price, totalQty, totalSold} = req.body
+        const {name, description, brand, category, sizes, colors, fullname, images, reviews, price, totalQty, totalSold} = req.body;
 
         //check if product exists
         const productExists = await Product.findOne({name});
 
         if (productExists) {
-            throw new Error ('Product already exists')
+            throw new Error ('Product already exists');
         }
 
         //create product
@@ -177,9 +177,48 @@ export const getProductCtrl = asyncHandler(
 );
 
 
+//@desc Update a single product
+//@route POST /api/products/:id
+//@access Admin
+export const updateProductCtrl = asyncHandler(
+
+    async(req, res) => {    
+
+        const {name, description, brand, category, sizes, colors, fullname, images, reviews, price, totalQty, totalSold} = req.body
+
+        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, {name, description, brand, category, sizes, colors, fullname, images, reviews, price, totalQty, totalSold}, {new: true})
+
+        res.json({
+            message: 'Product successully updated',
+            data:updatedProduct
+        })
+
+    }
+);
 
 
+//@desc Delete a single product
+//@route POST /api/products/:id
+//@access Admin
+
+export const deleteProductCtrl = asyncHandler(
+
+    async(req, res) => {
+
+        const product = await Product.findByIdAndDelete(req.params.id);
+
+        if (!product) {
+            throw new Error ('Product not found');
+        }
+
+        res.json({
+            message: `Product with id ${req.params.id} deleted`
+        });
+
+    }
+
+);
 
 
-
+   
 
