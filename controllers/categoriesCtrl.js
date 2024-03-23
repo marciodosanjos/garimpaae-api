@@ -34,7 +34,7 @@ export const getCategoriesCtrl = asyncHandler(async (req, res) => {
 //@route GET /api/category/:category
 //@access Public
 export const getCategoryCtrl = asyncHandler(async (req, res) => {
-  const categoryName = req.params.categorie;
+  const categoryName = req.params.category;
 
   const category = await Category.find({
     name: { $regex: categoryName, $options: "i" },

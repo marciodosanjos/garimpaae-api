@@ -2,6 +2,7 @@ import Category from "../model/Categories.js";
 import Product from "../model/Product.js";
 import Brands from "../model/Brands.js";
 import asyncHandler from "express-async-handler";
+import Colors from "../model/Colors.js";
 
 //@desc Register Product
 //@route POST /api/products
@@ -37,8 +38,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   }
 
   //find the brand
-  const brandFound = await Brands.findOne({ brand: brand.toLowerCase() });
-  console.log(brandFound);
+  const brandFound = await Brands.findOne({ name: brand});
 
   if (!brandFound) {
     throw new Error("Brand not found. Create one or check the existing");
