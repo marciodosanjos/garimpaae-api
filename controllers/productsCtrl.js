@@ -174,7 +174,7 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
   }
 
   //await the query
-  const products = await productQuery;
+  const products = await productQuery.populate('reviews');
 
   res.json({
     status: "success",
@@ -191,7 +191,7 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
 export const getProductCtrl = asyncHandler(async (req, res) => {
   const productId = req.params.id;
 
-  const product = await Product.findById(productId);
+  const product = await Product.findById(productId).populate('reviews');
 
   if (!product) {
     throw new Error("No product found");
