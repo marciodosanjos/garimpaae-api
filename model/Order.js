@@ -14,7 +14,7 @@ const OrderSchema = new Schema({
     },
     orderItems: [
         {
-            type: Object,
+        type: Object,
         required:true
         }
     ],
@@ -46,7 +46,7 @@ const OrderSchema = new Schema({
     //admin
     status:{
         type: String,
-        default: 'Pending',
+        default: 'pending',
         enum:['pending', 'processing', 'shipped', 'delivered']
     },
     deliveryAt: {

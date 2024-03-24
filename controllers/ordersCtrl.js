@@ -3,17 +3,18 @@ import Order from "../model/Order.js";
 import User from "../model/User.js";
 import Product from "../model/Product.js";
 import Stripe from "stripe";
-
+import dotenv from "dotenv";
+dotenv.config();
 
 // stripe instance
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
-
-
 export const createOrderCtrl = asyncHandler(
     async(req,res) => {
         //Get payload (user, orderItems, shippingAddress, totalPrice)
-        const {orderItems, shippingAdress, totalPrice} = req.body;
+        const {orderItems, shippingAddress, totalPrice, status} = req.body;
+
+        console.log(orderItems);
         
         //find the user
         const user = await User.findById(req.userAuthId);
@@ -32,8 +33,9 @@ export const createOrderCtrl = asyncHandler(
         const order = await Order.create({
             user:req.userAuthId,
             orderItems,
-            shippingAdress,
-            totalPrice
+            shippingAddress,
+            totalPrice,
+            status
         });
 
         //push order into user
@@ -54,34 +56,33 @@ export const createOrderCtrl = asyncHandler(
             await product.save()
         });
 
-
-
         //make payment (stripe)
-        const session = await stripe.checkout.sessions.create({
-            line_items:[{
+        //convert ordem items to have same data structure from Stripe;
+        const convertedOrders = orderItems?.map((item)=>{
+            return {
                 price_data:{
-                    currency: "brl",
+                    currency: 'brl',
                     product_data:{
-                        name:'Hats',
-                        description: 'First hat',
-
+                        name:item?.name,
+                        description:item?.description,
                     },
-                    unit_amount:10 * 100
-
+                    unit_amount: item?.price *100
                 },
-                quantity: 2,
-            }],
+                quantity:item?.quantity
+                }
+        });
+        
+        const session = await stripe.checkout.sessions.create({
+            line_items:convertedOrders,
             mode:'payment',
-            success_url: 'htpp:/localhost:7000/success',
-            cancel_url: 'htpp:/localhost:7000/cancel',
+            success_url: 'http://localhost:7000/success',
+            cancel_url: 'http://localhost:7000/cancel',
         });
 
-        res.send({url: success.url})
+        res.send({url: session.url});
 
         //payment webhook
-
         //update the user order
-
         
         // res.json({
         //     success:true,
