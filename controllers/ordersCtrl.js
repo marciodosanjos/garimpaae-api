@@ -2,6 +2,12 @@ import asyncHandler from "express-async-handler";
 import Order from "../model/Order.js";
 import User from "../model/User.js";
 import Product from "../model/Product.js";
+import Stripe from "stripe";
+
+
+// stripe instance
+const stripe = new Stripe(process.env.STRIPE_KEY);
+
 
 
 export const createOrderCtrl = asyncHandler(
@@ -11,6 +17,11 @@ export const createOrderCtrl = asyncHandler(
         
         //find the user
         const user = await User.findById(req.userAuthId);
+
+        //check if user has shipping address
+        if (!user?.hasShippingAddress) {
+            throw new Error ("Provide address")   
+        }
 
         //check if order is not empty
         if (orderItems?.length <= 0) {
@@ -46,18 +57,38 @@ export const createOrderCtrl = asyncHandler(
 
 
         //make payment (stripe)
+        const session = await stripe.checkout.sessions.create({
+            line_items:[{
+                price_data:{
+                    currency: "brl",
+                    product_data:{
+                        name:'Hats',
+                        description: 'First hat',
+
+                    },
+                    unit_amount:10 * 100
+
+                },
+                quantity: 2,
+            }],
+            mode:'payment',
+            success_url: 'htpp:/localhost:7000/success',
+            cancel_url: 'htpp:/localhost:7000/cancel',
+        });
+
+        res.send({url: success.url})
 
         //payment webhook
 
         //update the user order
 
         
-        res.json({
-            success:true,
-            message: 'Order controller',
-            order,
-            user
+        // res.json({
+        //     success:true,
+        //     message: 'Order controller',
+        //     order,
+        //     user
 
-        })
+        // })
     }
 );

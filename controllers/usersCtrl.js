@@ -71,3 +71,33 @@ export const getUserProfileCtrl = asyncHandler(async (req, res) => {
     msg: "Welcome to my profile page",
   });
 });
+
+// @desc Updating shipping address
+// @route GET /api/vi/users/update/shipping
+// @access Private
+
+export const updateShippingAddress = asyncHandler(
+  async(req,res) =>{
+    const {firstName, lastName, address, city, postalCode, province, phone} = req.body;
+
+    console.log(req.userAuthId);
+
+    const user = await User.findByIdAndUpdate(
+      req.userAuthId, 
+      {
+      shippingAddress:{
+        firstName, lastName, address, city, postalCode, province, phone
+      },
+      hasShippingAddress:true,
+      
+    }, {new:true});
+
+    res.json({
+      status: 'success',
+      message: 'user shipping address updated',
+      user
+    })
+
+  }
+
+);
