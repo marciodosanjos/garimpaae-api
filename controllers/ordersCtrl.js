@@ -9,87 +9,136 @@ dotenv.config();
 // stripe instance
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
-export const createOrderCtrl = asyncHandler(
-    async(req,res) => {
-        //Get payload (user, orderItems, shippingAddress, totalPrice)
-        const {orderItems, shippingAddress, totalPrice, status} = req.body;
+export const createOrderCtrl = asyncHandler(async (req, res) => {
+  //Get payload (user, orderItems, shippingAddress, totalPrice)
+  const { orderItems, shippingAddress, totalPrice, status } = req.body;
 
-        console.log(orderItems);
-        
-        //find the user
-        const user = await User.findById(req.userAuthId);
+  //find the user
+  const user = await User.findById(req.userAuthId);
 
-        //check if user has shipping address
-        if (!user?.hasShippingAddress) {
-            throw new Error ("Provide address")   
-        }
+  //check if user has shipping address
+  if (!user?.hasShippingAddress) {
+    throw new Error("Provide address");
+  }
 
-        //check if order is not empty
-        if (orderItems?.length <= 0) {
-            throw new Error('No order items');
-        }
+  //check if order is not empty
+  if (orderItems?.length <= 0) {
+    throw new Error("No order items");
+  }
 
-        //prace the order - save into db
-        const order = await Order.create({
-            user:req.userAuthId,
-            orderItems,
-            shippingAddress,
-            totalPrice,
-            status
-        });
+  //prace the order - save into db
+  const order = await Order.create({
+    user: req.userAuthId,
+    orderItems,
+    shippingAddress,
+    totalPrice,
+    status,
+  });
 
-        //push order into user
-        user.orders.push(order?._id);
-        await user.save();
+  //push order into user
+  user.orders.push(order?._id);
+  await user.save();
 
-        //update the product qty and qty sold
-        const products = await Product.find({_id:{$in:orderItems}});
+  //update the product qty and qty sold
+  const products = await Product.find({ _id: { $in: orderItems } });
 
-        orderItems?.map(async(order)=> {
-            const product = products?.find((product)=> {
-                return product?._id?.toString() === order?._id?.toString()
-            });
-            
-            if (product) {
-                product.totalSold += order.quantity
-            }
-            await product.save()
-        });
+  orderItems?.map(async (order) => {
+    const product = products?.find((product) => {
+      return product?._id?.toString() === order?._id?.toString();
+    });
 
-        //make payment (stripe)
-        //convert ordem items to have same data structure from Stripe;
-        const convertedOrders = orderItems?.map((item)=>{
-            return {
-                price_data:{
-                    currency: 'brl',
-                    product_data:{
-                        name:item?.name,
-                        description:item?.description,
-                    },
-                    unit_amount: item?.price *100
-                },
-                quantity:item?.quantity
-                }
-        });
-        
-        const session = await stripe.checkout.sessions.create({
-            line_items:convertedOrders,
-            mode:'payment',
-            success_url: 'http://localhost:7000/success',
-            cancel_url: 'http://localhost:7000/cancel',
-        });
-
-        res.send({url: session.url});
-
-        //payment webhook
-        //update the user order
-        
-        // res.json({
-        //     success:true,
-        //     message: 'Order controller',
-        //     order,
-        //     user
-
-        // })
+    if (product) {
+      product.totalSold += order.quantity;
     }
-);
+    await product.save();
+  });
+
+  //make payment (stripe)
+  //convert ordem items to have same data structure from Stripe;
+  const convertedOrders = orderItems?.map((item) => {
+    return {
+      price_data: {
+        currency: "brl",
+        product_data: {
+          name: item?.name,
+          description: item?.description,
+        },
+        unit_amount: item?.price * 100,
+      },
+      quantity: item?.quantity,
+    };
+  });
+
+  const session = await stripe.checkout.sessions.create({
+    line_items: convertedOrders,
+    metadata: {
+      orderId: JSON.stringify(order?._id),
+    },
+    mode: "payment",
+    success_url: "http://localhost:7000/success",
+    cancel_url: "http://localhost:7000/cancel",
+  });
+
+  res.send({ url: session.url });
+
+  //payment webhook
+  //update the user order
+
+  // res.json({
+  //     success:true,
+  //     message: 'Order controller',
+  //     order,
+  //     user
+
+  // })
+});
+
+//get all orders
+export const getOrdersCtrl = asyncHandler(async (req, res) => {
+  const orders = await Order.find();
+
+  if (!orders) {
+    throw new Error("No order found");
+  }
+
+  res.json({
+    success: true,
+    message: "All orders",
+    data: orders,
+  });
+});
+
+//get single order by id
+export const getOrderCtrl = asyncHandler(async (req, res) => {
+  const orderId = req.params.id;
+
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    throw new Error("No order matching id found");
+  }
+
+  res.json({
+    success: true,
+    message: "Order found",
+    data: order,
+  });
+});
+
+//update order status
+export const updateOrderCtrl = asyncHandler(async (req, res) => {
+  const orderId = req.params.id;
+  const { status } = req.body;
+
+  const order = Order.findByIdAndUpdate(
+    orderId,
+    { status: status },
+    { new: true }
+  );
+
+  res.json({
+    success: true,
+    message: "Order updated",
+    data: order,
+  });
+});

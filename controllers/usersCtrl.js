@@ -62,13 +62,14 @@ export const loginUserCrtl = asyncHandler(async (req, res) => {
 // @access Private
 
 export const getUserProfileCtrl = asyncHandler(async (req, res) => {
-  const token = getTokenFromHeader(req);
+  //finde the user
 
-  //verify token
-  const verified = verifyToken(token);
-  console.log(verified);
+  const user = await User.findById(req.userAuthId).populate("orders");
+
   res.json({
-    msg: "Welcome to my profile page",
+    status: "success",
+    message: "User profile",
+    data: user,
   });
 });
 
@@ -76,28 +77,32 @@ export const getUserProfileCtrl = asyncHandler(async (req, res) => {
 // @route GET /api/vi/users/update/shipping
 // @access Private
 
-export const updateShippingAddress = asyncHandler(
-  async(req,res) =>{
-    const {firstName, lastName, address, city, postalCode, province, phone} = req.body;
+export const updateShippingAddress = asyncHandler(async (req, res) => {
+  const { firstName, lastName, address, city, postalCode, province, phone } =
+    req.body;
 
-    console.log(req.userAuthId);
+  console.log(req.userAuthId);
 
-    const user = await User.findByIdAndUpdate(
-      req.userAuthId, 
-      {
-      shippingAddress:{
-        firstName, lastName, address, city, postalCode, province, phone
+  const user = await User.findByIdAndUpdate(
+    req.userAuthId,
+    {
+      shippingAddress: {
+        firstName,
+        lastName,
+        address,
+        city,
+        postalCode,
+        province,
+        phone,
       },
-      hasShippingAddress:true,
-      
-    }, {new:true});
+      hasShippingAddress: true,
+    },
+    { new: true }
+  );
 
-    res.json({
-      status: 'success',
-      message: 'user shipping address updated',
-      user
-    })
-
-  }
-
-);
+  res.json({
+    status: "success",
+    message: "user shipping address updated",
+    user,
+  });
+});
