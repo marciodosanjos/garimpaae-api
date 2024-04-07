@@ -8,7 +8,16 @@ import Colors from "../model/Colors.js";
 //@route POST /api/products
 //@access Private/Admin
 export const createProduct = asyncHandler(async (req, res) => {
-  console.log(req?.files);
+
+  console.log(req.files);
+  
+
+  res.json({
+    data: req.files.path
+  });
+  
+  // const convertedImages = req.files.map(file => file.path);
+
   // const {
   //   name,
   //   description,
@@ -22,6 +31,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   //   price,
   //   totalQty,
   //   totalSold,
+    
   // } = req.body;
 
   // //check if product exists
@@ -59,6 +69,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   //   price,
   //   totalQty,
   //   totalSold,
+  //   images: convertedImages
   // });
 
   // //push the product into category
