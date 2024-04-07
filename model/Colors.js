@@ -19,5 +19,4 @@ const ColorSchema = new Schema(
 
 //compile the schema to model
 const Color = mongoose.model("Color", ColorSchema);
-
 export default Color;
