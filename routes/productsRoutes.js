@@ -7,11 +7,12 @@ import {
   deleteProductCtrl,
 } from "../controllers/productsCtrl.js";
 import { isLoggedIn } from "../middlewares/isLoggedIn.js";
+import upload from "../config/fileUpload.js";
 
 const productsRouter = express.Router();
 
 //routes for products
-productsRouter.post("/", isLoggedIn, createProduct);
+productsRouter.post("/", isLoggedIn, upload.single('files'), createProduct);
 productsRouter.get("/", getProductsCtrl);
 productsRouter.get("/:id", getProductCtrl);
 productsRouter.put("/:id", isLoggedIn, updateProductCtrl);
