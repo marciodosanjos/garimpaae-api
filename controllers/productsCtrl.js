@@ -8,89 +8,81 @@ import Colors from "../model/Colors.js";
 //@route POST /api/products
 //@access Private/Admin
 export const createProduct = asyncHandler(async (req, res) => {
+  const convertedImages = req.files.map((file) => file.path);
 
-  console.log(req.files);
-  
+  const {
+    name,
+    description,
+    brand,
+    category,
+    sizes,
+    colors,
+    images,
+    reviews,
+    price,
+    totalQty,
+    totalSold,
+  } = req.body;
 
-  res.json({
-    data: req.files.path
+  //check if product exists
+  const productExists = await Product.findOne({ name });
+
+  if (productExists) {
+    throw new Error("Product already exists");
+  }
+
+  //find the category
+  const categoryFound = await Category.findOne({ name: category });
+
+  if (!category) {
+    throw new Error("Category not found. Create one or check the existing");
+  }
+
+  //find the brand
+  const brandFound = await Brands.findOne({ name: brand });
+
+  if (!brandFound) {
+    throw new Error("Brand not found. Create one or check the existing");
+  }
+
+  //create product
+  const product = await Product.create({
+    name,
+    description,
+    brand,
+    category,
+    sizes,
+    colors,
+    user: req.userAuthId,
+    images,
+    reviews,
+    price,
+    totalQty,
+    totalSold,
+    images: convertedImages,
   });
-  
-  // const convertedImages = req.files.map(file => file.path);
 
-  // const {
-  //   name,
-  //   description,
-  //   brand,
-  //   category,
-  //   sizes,
-  //   colors,
-  //   fullname,
-  //   images,
-  //   reviews,
-  //   price,
-  //   totalQty,
-  //   totalSold,
-    
-  // } = req.body;
+  //push the product into category
+  categoryFound.products.push(product.id);
 
-  // //check if product exists
-  // const productExists = await Product.findOne({ name });
+  console.log(categoryFound);
 
-  // if (productExists) {
-  //   throw new Error("Product already exists");
-  // }
+  //resave
+  await categoryFound.save();
 
-  // //find the category
-  // const categoryFound = await Category.findOne({ name: category });
+  //push the product into brand
+  brandFound.products.push(product.id);
 
-  // if (!category) {
-  //   throw new Error("Category not found. Create one or check the existing");
-  // }
+  //resave
+  await brandFound.save();
 
-  // //find the brand
-  // const brandFound = await Brands.findOne({ name: brand});
+  //send the response
 
-  // if (!brandFound) {
-  //   throw new Error("Brand not found. Create one or check the existing");
-  // }
-
-  // //create product
-  // const product = await Product.create({
-  //   name,
-  //   description,
-  //   brand,
-  //   category,
-  //   sizes,
-  //   colors,
-  //   user: req.userAuthId,
-  //   images,
-  //   reviews,
-  //   price,
-  //   totalQty,
-  //   totalSold,
-  //   images: convertedImages
-  // });
-
-  // //push the product into category
-  // categoryFound.products.push(product.id);
-
-  // //resave
-  // await categoryFound.save();
-
-  // //push the product into brand
-  // brandFound.products.push(product.id);
-
-  // //resave
-  // await brandFound.save();
-
-  // //send the response
-
-  // res.status(201).json({
-  //   status: "success",
-  //   message: "Product registered successfully",
-  //   data: product,
-  // });
+  res.status(201).json({
+    status: "success",
+    message: "Product registered successfully",
+    data: product,
+  });
 });
 
 //@desc Fetch all products
@@ -186,7 +178,7 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
   }
 
   //await the query
-  const products = await productQuery.populate('reviews');
+  const products = await productQuery.populate("reviews");
 
   res.json({
     status: "success",
@@ -203,7 +195,7 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
 export const getProductCtrl = asyncHandler(async (req, res) => {
   const productId = req.params.id;
 
-  const product = await Product.findById(productId).populate('reviews');
+  const product = await Product.findById(productId).populate("reviews");
 
   if (!product) {
     throw new Error("No product found");
