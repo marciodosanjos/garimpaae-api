@@ -81,8 +81,6 @@ export const updateShippingAddress = asyncHandler(async (req, res) => {
   const { firstName, lastName, address, city, postalCode, province, phone } =
     req.body;
 
-  console.log(req.userAuthId);
-
   const user = await User.findByIdAndUpdate(
     req.userAuthId,
     {
