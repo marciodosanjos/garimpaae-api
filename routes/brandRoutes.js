@@ -7,14 +7,15 @@ import {
   updateBrandCtrl,
   deleteBrandCtrl,
 } from "../controllers/brandsCtrl.js";
+import isAdmin from "../middlewares/isAdmin.js";
 
 const brandsRouter = express.Router();
 
 //routes for categories
-brandsRouter.post("/", isLoggedIn, createBrandCtrl);
+brandsRouter.post("/", isLoggedIn,isAdmin, createBrandCtrl);
 brandsRouter.get("/", getBrandsCtrl);
 brandsRouter.get("/:id", getBrandCtrl);
-brandsRouter.put("/:id", isLoggedIn, updateBrandCtrl);
-brandsRouter.delete("/:id", isLoggedIn, deleteBrandCtrl);
+brandsRouter.put("/:id", isLoggedIn, isAdmin, updateBrandCtrl);
+brandsRouter.delete("/:id", isLoggedIn, isAdmin, deleteBrandCtrl);
 
 export default brandsRouter;
