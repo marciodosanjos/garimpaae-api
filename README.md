@@ -1,4 +1,4 @@
-# nodejs-ecom-api
+# Garimpa Aê API
 
 This is a e-commerce application built with MERN Stack (MongoDB, Express, Reactjs and Nodejs).
 
@@ -22,7 +22,11 @@ Delete Review
 Reading Review
 Update Review
 
+
+
 It also provides the following funcionalities:
 
  - JWT
+ - Upload images
+ - Integration with Stripe for payment
 ...
