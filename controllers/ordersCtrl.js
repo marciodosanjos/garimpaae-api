@@ -20,7 +20,6 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
   }
 
   let discount = null;
-
   if (couponFound) {
     //get discount
     discount = couponFound?.discount / 100;
@@ -57,16 +56,18 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
 
   //update the product qty and qty sold
   const products = await Product.find({ _id: { $in: orderItems } });
-  console.log(products);
+
+  if (products.length <= 0) {
+    throw new Error("No products");
+  }
 
   orderItems?.map(async (order) => {
     const product = products?.find((product) => {
       return product?._id?.toString() === order?._id?.toString();
     });
 
-    if (product) {
-      product.totalSold += order.quantity;
-    }
+    if (product) product.totalSold += order.quantity;
+
     await product.save();
   });
 
@@ -147,9 +148,9 @@ export const updateOrderCtrl = asyncHandler(async (req, res) => {
   const orderId = req.params.id;
   const { status } = req.body;
 
-  const order = Order.findByIdAndUpdate(
+  const order = await Order.findByIdAndUpdate(
     orderId,
-    { status: status },
+    { status },
     { new: true }
   );
 
@@ -157,6 +158,18 @@ export const updateOrderCtrl = asyncHandler(async (req, res) => {
     success: true,
     message: "Order updated",
     data: order,
+  });
+});
+
+//delete order
+export const deleteOrderCtrl = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+
+  await Order.findByIdAndDelete(id);
+
+  res.json({
+    success: true,
+    message: "Order deleted",
   });
 });
 

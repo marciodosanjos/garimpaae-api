@@ -22,7 +22,7 @@ productsRouter.post(
 );
 productsRouter.get("/", getProductsCtrl);
 productsRouter.get("/:id", getProductCtrl);
-productsRouter.put("/:id", isLoggedIn, isAdmin, updateProductCtrl);
+productsRouter.put("/update/:id", isLoggedIn, isAdmin, updateProductCtrl);
 productsRouter.delete("/delete/:id", isLoggedIn, isAdmin, deleteProductCtrl);
 
 export default productsRouter;

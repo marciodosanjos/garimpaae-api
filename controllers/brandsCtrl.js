@@ -40,7 +40,6 @@ export const getBrandCtrl = asyncHandler(async (req, res) => {
   const brandID = req.params.id;
 
   const brand = await Brand.findById(brandID);
-  console.log(brand);
 
   if (!brand) {
     throw new Error("No brand");
@@ -64,7 +63,8 @@ export const updateBrandCtrl = asyncHandler(async (req, res) => {
     throw new Error("The brand doesnt exist");
   }
 
-  const brand = await Brand.findByIdAndUpdate(brandID,
+  const brand = await Brand.findByIdAndUpdate(
+    brandID,
     { name: name },
     { new: true }
   );
@@ -73,14 +73,13 @@ export const updateBrandCtrl = asyncHandler(async (req, res) => {
     message: "Brand updated sucessfully",
     data: brand,
   });
-
 });
 
 //@desc Delete a single category
 //@route DELETE /api/categories/:category
 //@access Admin
 export const deleteBrandCtrl = asyncHandler(async (req, res) => {
-   const brandID = req.params.id;
+  const brandID = req.params.id;
 
   const brandFound = await Brand.findById(brandID);
 

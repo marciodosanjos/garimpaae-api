@@ -15,13 +15,24 @@ const categoriesRouter = express.Router();
 //routes for categories
 categoriesRouter.post(
   "/",
-  isLoggedIn,isAdmin,
+  isLoggedIn,
+  isAdmin,
   upload.single("file"),
   createCategoryCtrl
 );
 categoriesRouter.get("/", getCategoriesCtrl);
 categoriesRouter.get("/:category", getCategoryCtrl);
-categoriesRouter.put("/:category", isLoggedIn,isAdmin, updateCategoryCtrl);
-categoriesRouter.delete("/:category", isLoggedIn,isAdmin, deleteCategoryCtrl);
+categoriesRouter.put(
+  "/update/:category",
+  isLoggedIn,
+  isAdmin,
+  updateCategoryCtrl
+);
+categoriesRouter.delete(
+  "/delete/:category",
+  isLoggedIn,
+  isAdmin,
+  deleteCategoryCtrl
+);
 
 export default categoriesRouter;

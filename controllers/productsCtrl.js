@@ -65,8 +65,6 @@ export const createProduct = asyncHandler(async (req, res) => {
   //push the product into category
   categoryFound.products.push(product.id);
 
-  console.log(categoryFound);
-
   //resave
   await categoryFound.save();
 
@@ -89,7 +87,6 @@ export const createProduct = asyncHandler(async (req, res) => {
 //@route GET /api/products
 //@access Public
 export const getProductsCtrl = asyncHandler(async (req, res) => {
-  console.log(req.body);
   //query
   let productQuery = Product.find();
 
@@ -116,7 +113,6 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
 
   //search by color
   if (req.query.color) {
-    console.log(req.query.size);
     productQuery = productQuery.find({
       colors: { $regex: req.query.color, $options: "i" },
     });
