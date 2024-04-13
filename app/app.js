@@ -13,10 +13,14 @@ import reviewsRouter from "../routes/reviewsRoutes.js";
 import ordersRouter from "../routes/ordersRoutes.js";
 import Order from "../model/Order.js";
 import couponRouter from "../routes/couponRoutes.js";
+import cors from "cors";
 
 //db connect
 dbConnect();
 const app = express();
+
+//cors
+app.use(cors()); //allows any client side to access to the api
 
 //Stripe webhook
 const stripe = new Stripe(process.env.STRIPE_KEY);
