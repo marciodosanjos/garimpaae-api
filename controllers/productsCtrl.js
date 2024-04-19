@@ -8,8 +8,6 @@ import Colors from "../model/Colors.js";
 //@route POST /api/products
 //@access Private/Admin
 export const createProduct = asyncHandler(async (req, res) => {
-  const convertedImages = req.files.map((file) => file.path);
-
   const {
     name,
     description,
@@ -23,6 +21,8 @@ export const createProduct = asyncHandler(async (req, res) => {
     totalQty,
     totalSold,
   } = req.body;
+
+  const convertedImages = req.files.map((file) => file?.path);
 
   //check if product exists
   const productExists = await Product.findOne({ name });
