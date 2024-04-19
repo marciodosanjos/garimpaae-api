@@ -5,7 +5,7 @@ import asyncHandler from "express-async-handler";
 import Colors from "../model/Colors.js";
 
 //@desc Register Product
-//@route POST /api/products
+//@route POST /api/v1/products
 //@access Private/Admin
 export const createProduct = asyncHandler(async (req, res) => {
   const {
@@ -15,7 +15,6 @@ export const createProduct = asyncHandler(async (req, res) => {
     category,
     sizes,
     colors,
-    images,
     reviews,
     price,
     totalQty,
@@ -23,6 +22,8 @@ export const createProduct = asyncHandler(async (req, res) => {
   } = req.body;
 
   const convertedImages = req.files.map((file) => file?.path);
+
+  console.log(convertedImages);
 
   //check if product exists
   const productExists = await Product.findOne({ name });
@@ -54,22 +55,20 @@ export const createProduct = asyncHandler(async (req, res) => {
     sizes,
     colors,
     user: req.userAuthId,
-    images,
     reviews,
     price,
     totalQty,
-    totalSold,
     images: convertedImages,
   });
 
   //push the product into category
-  categoryFound.products.push(product.id);
+  categoryFound.products.push(product._id);
 
   //resave
   await categoryFound.save();
 
   //push the product into brand
-  brandFound.products.push(product.id);
+  brandFound.products.push(product._id);
 
   //resave
   await brandFound.save();
@@ -84,7 +83,7 @@ export const createProduct = asyncHandler(async (req, res) => {
 });
 
 //@desc Fetch all products
-//@route GET /api/products
+//@route GET /api/v1/products
 //@access Public
 export const getProductsCtrl = asyncHandler(async (req, res) => {
   //query
@@ -186,7 +185,7 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
 });
 
 //@desc Fetch a single product
-//@route GET /api/products/:id
+//@route GET /api/v1/products/:id
 //@access Public
 export const getProductCtrl = asyncHandler(async (req, res) => {
   const productId = req.params.id;
@@ -204,7 +203,7 @@ export const getProductCtrl = asyncHandler(async (req, res) => {
 });
 
 //@desc Update a single product
-//@route POST /api/products/:id
+//@route POST /api/v1/products/:id
 //@access Admin
 export const updateProductCtrl = asyncHandler(async (req, res) => {
   const {
@@ -248,7 +247,7 @@ export const updateProductCtrl = asyncHandler(async (req, res) => {
 });
 
 //@desc Delete a single product
-//@route POST /api/products/:id
+//@route POST /api/v1/products/:id
 //@access Admin
 export const deleteProductCtrl = asyncHandler(async (req, res) => {
   const product = await Product.findByIdAndDelete(req.params.id);
