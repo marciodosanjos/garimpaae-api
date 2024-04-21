@@ -5,9 +5,9 @@ import asyncHandler from "express-async-handler";
 //@route POST /api/category
 //@access Private/Admin
 export const createCategoryCtrl = asyncHandler(async (req, res) => {
-  const { name, user, image, products } = req.body;
+  const { name, user, products } = req.body;
 
-  const categoryImage = req.file.path;
+  const categoryImage = req?.file?.path;
 
   //check if it already exists
   const categoryFound = await Category.findOne({ name });
@@ -16,7 +16,7 @@ export const createCategoryCtrl = asyncHandler(async (req, res) => {
   }
   //create
   const category = await Category.create({
-    name,
+    name: name?.toLowerCase(),
     user: req.userAuthId,
     image: categoryImage,
   });

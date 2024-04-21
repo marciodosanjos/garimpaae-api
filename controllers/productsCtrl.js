@@ -21,7 +21,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     totalSold,
   } = req.body;
 
-  const convertedImages = req.files.map((file) => file?.path);
+  const convertedImages = req?.files?.map((file) => file?.path);
 
   console.log(convertedImages);
 
@@ -74,7 +74,6 @@ export const createProduct = asyncHandler(async (req, res) => {
   await brandFound.save();
 
   //send the response
-
   res.status(201).json({
     status: "success",
     message: "Product registered successfully",
