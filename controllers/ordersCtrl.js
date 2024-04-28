@@ -67,7 +67,9 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
       return product?._id?.toString() === order?._id?.toString();
     });
 
-    if (product) product.totalSold += order.quantity;
+    if (product) {
+      product.totalSold += order.qty;
+    }
 
     await product.save();
   });
@@ -84,7 +86,7 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
         },
         unit_amount: item?.price * 100,
       },
-      quantity: item?.quantity,
+      quantity: item?.qty,
     };
   });
 
@@ -94,8 +96,8 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
       orderId: JSON.stringify(order?._id),
     },
     mode: "payment",
-    success_url: "http://localhost:7000/success",
-    cancel_url: "http://localhost:7000/cancel",
+    success_url: "http://localhost:3000/success",
+    cancel_url: "http://localhost:3000/cancel",
   });
 
   res.send({ url: session.url });
