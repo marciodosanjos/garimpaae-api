@@ -116,7 +116,7 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
 
 //get all orders
 export const getOrdersCtrl = asyncHandler(async (req, res) => {
-  const orders = await Order.find();
+  const orders = await Order.find().populate("user");
 
   if (!orders) {
     throw new Error("No order found");
