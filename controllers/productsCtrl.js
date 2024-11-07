@@ -136,6 +136,12 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
     });
   }
 
+  //sort
+  if (req.query.sort) {
+    const sortOrder = req.query.sort.replace(/"/g, "") === "asc" ? 1 : -1;
+    productQuery = productQuery.sort({ price: sortOrder });
+  }
+
   //pagination
 
   //page
