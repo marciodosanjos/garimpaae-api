@@ -23,8 +23,6 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   const convertedImages = req?.files?.map((file) => file?.path);
 
-  console.log(convertedImages);
-
   //check if product exists
   const productExists = await Product.findOne({ name });
 
@@ -88,6 +86,12 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
   //query
   let productQuery = Product.find();
 
+  //sort
+  if (req.query.sort) {
+    const sortOrder = req.query.sort === "price_asc" ? 1 : -1;
+    productQuery = productQuery.sort({ price: sortOrder });
+  }
+
   //search by name
   if (req.query.name) {
     productQuery = productQuery.find({
@@ -127,19 +131,12 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
     let priceRange = req.query.price.split("-");
 
     //how to: in this case we need to use some mongodb operators inside the find query
-
     //gte: greater than or equal to
     //lte: less than or equal to
 
     productQuery.find({
       price: { $gte: priceRange[0], $lte: priceRange[1] },
     });
-  }
-
-  //sort
-  if (req.query.sort) {
-    const sortOrder = req.query.sort.replace(/"/g, "") === "asc" ? 1 : -1;
-    productQuery = productQuery.sort({ price: sortOrder });
   }
 
   //pagination
