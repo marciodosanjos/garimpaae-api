@@ -121,12 +121,16 @@ export const updateUserLoginData = asyncHandler(async (req, res) => {
     throw new Error("Please specify an email and a password");
   }
 
+  //hash password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
   try {
     const user = await User.findByIdAndUpdate(
       req.userAuthId,
       {
         email,
-        password,
+        password: hashedPassword,
       },
       { new: true }
     );
