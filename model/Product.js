@@ -36,8 +36,8 @@ const ProductSchema = new Schema(
     images: [
       {
         type: String,
-        required:true
-        },
+        required: true,
+      },
     ],
     reviews: [
       {
@@ -65,29 +65,27 @@ const ProductSchema = new Schema(
 //Virtuals
 
 //total quantity left
-ProductSchema.virtual('tqtyLeft').get(function () {
-  const product = this
+ProductSchema.virtual("tqtyLeft").get(function () {
+  const product = this;
   return this.totalQty - product.totalSold;
 });
 
 //total rating
-ProductSchema.virtual('totalReviews').get(function() {
-    const product = this;
-    return product?.reviews?.length;
-
+ProductSchema.virtual("totalReviews").get(function () {
+  const product = this;
+  return product?.reviews?.length;
 });
 
 //average rating
-ProductSchema.virtual('averageRate').get(function() {
+ProductSchema.virtual("averageRate").get(function () {
   let ratingsTotal = 0;
   const product = this;
-  product?.reviews?.forEach((review)=> {
-    ratingsTotal += review?.rating
-  })
+  product?.reviews?.forEach((review) => {
+    ratingsTotal += review?.rating;
+  });
 
   return ratingsTotal / Number(product?.reviews?.length).toFixed(1);
-  
-})
+});
 
 //compile the schema to model
 const Product = mongoose.model("Product", ProductSchema);

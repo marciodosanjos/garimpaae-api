@@ -47,7 +47,6 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
     orderItems,
     shippingAddress,
     totalPrice,
-    //totalPrice: couponFound ? totalPrice - totalPrice * discount : totalPrice,
     status,
   });
 
