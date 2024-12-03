@@ -84,7 +84,10 @@ export const createProduct = asyncHandler(async (req, res) => {
 //@access Public
 export const getProductsCtrl = asyncHandler(async (req, res) => {
   //query
-  let productQuery = Product.find();
+  let productQuery = Product.find({});
+
+  //query with projection
+  //let productQuery = Product.find({}, { name: 1, description: 1 });
 
   //sort
   if (req.query.sort) {
@@ -94,9 +97,12 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
 
   //search by name
   if (req.query.name) {
-    productQuery = productQuery.find({
-      name: { $regex: req.query.name, $options: "i" },
-    });
+    productQuery = productQuery.find(
+      {
+        name: { $regex: req.query.name, $options: "i" },
+      },
+      { name: 1 }
+    );
   }
 
   //search by brand

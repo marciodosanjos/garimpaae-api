@@ -14,6 +14,7 @@ import ordersRouter from "../routes/ordersRoutes.js";
 import Order from "../model/Order.js";
 import couponRouter from "../routes/couponRoutes.js";
 import cors from "cors";
+//import searchRouter from "../routes/searchRoutes.js";
 
 //db connect
 dbConnect();
@@ -101,6 +102,7 @@ app.use("/api/v1/colors/", colorsRouter);
 app.use("/api/v1/reviews/", reviewsRouter);
 app.use("/api/v1/orders/", ordersRouter);
 app.use("/api/v1/coupons/", couponRouter);
+//app.use("/api/v1/search/", searchRouter);
 
 //err middleware
 app.use(notFound);

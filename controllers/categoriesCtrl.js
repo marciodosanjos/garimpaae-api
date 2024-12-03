@@ -5,7 +5,7 @@ import asyncHandler from "express-async-handler";
 //@route POST /api/category
 //@access Private/Admin
 export const createCategoryCtrl = asyncHandler(async (req, res) => {
-  const { name, user, products } = req.body;
+  const { name } = req.body;
 
   const categoryImage = req?.file?.path;
 
