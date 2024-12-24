@@ -155,3 +155,34 @@ export const updateShippingAddress = asyncHandler(async (req, res) => {
     user,
   });
 });
+
+export const updateUserLoginData = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new Error("Please specify an email and a password");
+  }
+
+  //hash password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.userAuthId,
+      {
+        email,
+        password: hashedPassword,
+      },
+      { new: true }
+    );
+
+    res.json({
+      status: "success",
+      message: "user login data updated",
+      user,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});

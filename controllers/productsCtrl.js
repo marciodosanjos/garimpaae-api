@@ -132,13 +132,25 @@ export const createProduct = asyncHandler(async (req, res) => {
 //@access Public
 export const getProductsCtrl = asyncHandler(async (req, res) => {
   //query
-  let productQuery = Product.find();
+  let productQuery = Product.find({});
+
+  //query with projection
+  //let productQuery = Product.find({}, { name: 1, description: 1 });
+
+  //sort
+  if (req.query.sort) {
+    const sortOrder = req.query.sort === "price_asc" ? 1 : -1;
+    productQuery = productQuery.sort({ price: sortOrder });
+  }
 
   //search by name
   if (req.query.name) {
-    productQuery = productQuery.find({
-      name: { $regex: req.query.name, $options: "i" },
-    });
+    productQuery = productQuery.find(
+      {
+        name: { $regex: req.query.name, $options: "i" },
+      },
+      { name: 1 }
+    );
   }
 
   //search by brand
@@ -173,7 +185,6 @@ export const getProductsCtrl = asyncHandler(async (req, res) => {
     let priceRange = req.query.price.split("-");
 
     //how to: in this case we need to use some mongodb operators inside the find query
-
     //gte: greater than or equal to
     //lte: less than or equal to
 

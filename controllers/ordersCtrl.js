@@ -47,7 +47,6 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
     orderItems,
     shippingAddress,
     totalPrice,
-    //totalPrice: couponFound ? totalPrice - totalPrice * discount : totalPrice,
     status,
   });
 
@@ -96,8 +95,8 @@ export const createOrderCtrl = asyncHandler(async (req, res) => {
       orderId: JSON.stringify(order?._id),
     },
     mode: "payment",
-    success_url: "http://localhost:3000/success",
-    cancel_url: "http://localhost:3000/cancel",
+    success_url: "https://garimpa-ae.netlify.app/success",
+    cancel_url: "https://garimpa-ae.netlify.app/cancel",
   });
 
   res.send({ url: session.url });
