@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import validator from "validator";
 
 const Schema = mongoose.Schema;
 
@@ -6,15 +7,29 @@ const UserSchema = new Schema(
   {
     fullname: {
       type: String,
-      required: true,
+      required: [true, "Full name is required"],
+      trim: true,
+      validate: {
+        validator: (value) => validator.isLength(value, { min: 1 }),
+        message: "Full name cannot be empty.",
+      },
+      set: (value) => validator.escape(value), // Sanitizes the input
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
+      unique: true,
+      trim: true,
+      validate: {
+        validator: (value) => validator.isEmail(value),
+        message: "Invalid email format.",
+      },
+      set: (value) => validator.normalizeEmail(value), // Sanitizes the input
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters long"],
     },
     orders: [
       {
@@ -36,37 +51,12 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    shippingAddress: {
-      firstName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
-      address: {
-        type: String,
-      },
-      city: {
-        type: String,
-      },
-      postalCode: {
-        type: String,
-      },
-      province: {
-        type: String,
-      },
-      country: {
-        type: String,
-      },
-      phone: {
-        type: String,
-      },
-    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-//compile the schema to model
 const User = mongoose.model("User", UserSchema);
 
 export default User;

@@ -23,7 +23,48 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   const convertedImages = req?.files?.map((file) => file?.path);
 
-  console.log(convertedImages);
+  // Sanitize and validate inputs
+  if (!validator.isLength(name, { min: 1 })) {
+    return res.status(400).json({ message: "Product name cannot be empty." });
+  }
+  if (!validator.isLength(category, { min: 1 })) {
+    return res.status(400).json({ message: "Category cannot be empty." });
+  }
+  if (
+    !Array.isArray(sizes) ||
+    !sizes.every((size) => validator.isAlphanumeric(size.replace(/\s/g, "")))
+  ) {
+    return res.status(400).json({
+      message: "Invalid sizes. Only letters and numbers are allowed.",
+    });
+  }
+  if (
+    !Array.isArray(colors) ||
+    !colors.every((color) => validator.isAlphanumeric(color.replace(/\s/g, "")))
+  ) {
+    return res.status(400).json({
+      message: "Invalid colors. Only letters and numbers are allowed.",
+    });
+  }
+  if (!validator.isLength(user, { min: 1 })) {
+    return res.status(400).json({ message: "User cannot be empty." });
+  }
+  if (
+    !Array.isArray(images) ||
+    !images.every((image) => validator.isURL(image))
+  ) {
+    return res.status(400).json({ message: "Invalid image URLs." });
+  }
+  if (!validator.isNumeric(price.toString()) || price < 0) {
+    return res
+      .status(400)
+      .json({ message: "Price must be a positive number." });
+  }
+  if (!validator.isNumeric(totalQty.toString()) || totalQty < 0) {
+    return res
+      .status(400)
+      .json({ message: "Total quantity must be a positive number." });
+  }
 
   //check if product exists
   const productExists = await Product.findOne({ name });
@@ -46,18 +87,23 @@ export const createProduct = asyncHandler(async (req, res) => {
     throw new Error("Brand not found. Create one or check the existing");
   }
 
-  //create product
-  const product = await Product.create({
-    name,
-    description,
-    brand,
-    category,
-    sizes,
-    colors,
-    user: req.userAuthId,
-    reviews,
+  // Sanitize inputs
+  const sanitizedData = {
+    name: validator.escape(name),
+    category: validator.escape(category),
+    sizes: sizes.map((size) => validator.escape(size)),
+    colors: colors.map((color) => validator.escape(color)),
+    user: validator.escape(user),
+    images: images.map((image) => validator.escape(image)),
     price,
     totalQty,
+  };
+
+  //create product
+  const product = await Product.create({
+    ...sanitizedData,
+    user: req.userAuthId,
+    reviews,
     images: convertedImages,
   });
 
