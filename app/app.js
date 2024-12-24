@@ -14,11 +14,16 @@ import ordersRouter from "../routes/ordersRoutes.js";
 import Order from "../model/Order.js";
 import couponRouter from "../routes/couponRoutes.js";
 import cors from "cors";
+import { enforce } from "express-sslify";
+
 //import searchRouter from "../routes/searchRoutes.js";
 
 //db connect
 dbConnect();
 const app = express();
+
+// Enforce HTTPS
+app.use(enforce.HTTPS({ trustProtoHeader: true }));
 
 //cors
 app.use(cors()); //allows any client side to access to the api
