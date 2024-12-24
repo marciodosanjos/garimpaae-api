@@ -14,16 +14,30 @@ import ordersRouter from "../routes/ordersRoutes.js";
 import Order from "../model/Order.js";
 import couponRouter from "../routes/couponRoutes.js";
 import cors from "cors";
-import { enforce } from "express-sslify";
+import enforce from "express-sslify";
 import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+import helmet from "helmet";
+import csurf from "csurf";
+
 //import searchRouter from "../routes/searchRoutes.js";
 
 //db connect
 dbConnect();
 const app = express();
 
+// CSRF protection
+const csrfProtection = csurf({ cookie: true });
+app.use(csrfProtection);
+
+// Sanitize data against sql ingection
+app.use(mongoSanitize());
+
 // Enforce HTTPS
 app.use(enforce.HTTPS({ trustProtoHeader: true }));
+
+// Use Helmet to set security-related HTTP headers
+app.use(helmet());
 
 const blockedIPs = new Set();
 
@@ -55,6 +69,13 @@ const limiter = rateLimit({
 
 app.use(limiter); // Apply rate limiting to all requests
 
+// Enable CORS for specific origins
+const corsOptions = {
+  origin: ["https://garimpa-ae.com"],
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+
 //cors
 app.use(cors()); //allows any client side to access to the api
 
@@ -62,8 +83,7 @@ app.use(cors()); //allows any client side to access to the api
 const stripe = new Stripe(process.env.STRIPE_KEY);
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
-const endpointSecret =
-  "whsec_62fda3c7b980684ed78819dfe7861c507b962c0ce6d516562672cf197173bfce";
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 app.post(
   "/webhook",

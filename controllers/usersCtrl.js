@@ -5,6 +5,7 @@ import generateToken from "../utils/generateToken.js";
 import { getTokenFromHeader } from "../utils/getTokenFromHeader.js";
 import { verifyToken } from "../utils/verifyToken.js";
 import validator from "validator";
+import jwt from "jsonwebtoken";
 
 //@desc Register User
 //@route POST /api/users/register
@@ -42,6 +43,7 @@ export const registerUserCtrl = asyncHandler(async (req, res) => {
     fullname: validator.escape(fullname),
     email: validator.normalizeEmail(email),
     password: hashedPassword,
+    isAdmin: isAdmin || false, // Default role is "user"
   });
 
   res.status(201).json({
