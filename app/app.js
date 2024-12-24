@@ -15,7 +15,7 @@ import Order from "../model/Order.js";
 import couponRouter from "../routes/couponRoutes.js";
 import cors from "cors";
 import { enforce } from "express-sslify";
-
+import rateLimit from "express-rate-limit";
 //import searchRouter from "../routes/searchRoutes.js";
 
 //db connect
@@ -24,6 +24,36 @@ const app = express();
 
 // Enforce HTTPS
 app.use(enforce.HTTPS({ trustProtoHeader: true }));
+
+const blockedIPs = new Set();
+
+const blockIPMiddleware = (req, res, next) => {
+  const ip = req.ip;
+  if (blockedIPs.has(ip)) {
+    return res.status(403).json({ message: "Your IP has been blocked." });
+  }
+  next();
+};
+
+// Apply block IP middleware
+app.use(blockIPMiddleware);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  message: "Too many requests from this IP, please try again after 15 minutes",
+  handler: (req, res /*next*/) => {
+    const ip = req.ip;
+    blockedIPs.add(ip);
+    res.status(429).json({
+      status: "fail",
+      message:
+        "Too many requests from this IP, please try again after 15 minutes",
+    });
+  },
+});
+
+app.use(limiter); // Apply rate limiting to all requests
 
 //cors
 app.use(cors()); //allows any client side to access to the api
